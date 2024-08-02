@@ -3,7 +3,7 @@ import { isEqual } from "lodash-es";
 import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { workspaceSettingNamePrefix, useWorkspaceSettingStore } from "@/store/v1";
+import { WorkspaceSettingPrefix, useWorkspaceSettingStore } from "@/store/v1";
 import {
   WorkspaceStorageSetting,
   WorkspaceStorageSetting_S3Config,
@@ -97,6 +97,10 @@ const StorageSection = () => {
     handlePartialS3ConfigChanged({ bucket: event.target.value });
   };
 
+  const handleS3ConfigCustomDomainChanged = async (event: React.FocusEvent<HTMLInputElement>) => {
+    handlePartialS3ConfigChanged({ customDomain: event.target.value });
+  };
+
   const handleStorageTypeChanged = async (storageType: WorkspaceStorageSetting_StorageType) => {
     const update: WorkspaceStorageSetting = {
       ...workspaceStorageSetting,
@@ -107,7 +111,7 @@ const StorageSection = () => {
 
   const saveWorkspaceStorageSetting = async () => {
     await workspaceSettingStore.setWorkspaceSetting({
-      name: `${workspaceSettingNamePrefix}${WorkspaceSettingKey.STORAGE}`,
+      name: `${WorkspaceSettingPrefix}${WorkspaceSettingKey.STORAGE}`,
       storageSetting: workspaceStorageSetting,
     });
     toast.success("Updated");
@@ -179,6 +183,10 @@ const StorageSection = () => {
           <div className="w-full flex flex-row justify-between items-center">
             <span className="text-gray-700 dark:text-gray-500 mr-1">Bucket</span>
             <Input value={workspaceStorageSetting.s3Config?.bucket} placeholder="" onChange={handleS3ConfigBucketChanged} />
+          </div>
+          <div className="w-full flex flex-row justify-between items-center">
+            <span className="text-gray-700 dark:text-gray-500 mr-1">CustomDomain</span>
+            <Input value={workspaceStorageSetting.s3Config?.customDomain} placeholder="" onChange={handleS3ConfigCustomDomainChanged} />
           </div>
         </>
       )}
