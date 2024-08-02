@@ -1,4 +1,4 @@
-name: build-image-main
+name: build-image-custom
 
 on:
   push:
