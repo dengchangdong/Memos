@@ -19,6 +19,28 @@ consumes:
 produces:
   - application/json
 paths:
+  /api/v1/activities/{id}:
+    get:
+      summary: GetActivity returns the activity with the given id.
+      operationId: ActivityService_GetActivity
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1Activity'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: id
+          description: The system-generated unique identifier for the activity.
+          in: path
+          required: true
+          type: integer
+          format: int32
+      tags:
+        - ActivityService
   /api/v1/auth/signin:
     post:
       summary: SignIn signs in the user with the given username and password.
@@ -333,6 +355,42 @@ paths:
           required: true
           schema:
             $ref: '#/definitions/v1CreateMemoRequest'
+      tags:
+        - MemoService
+  /api/v1/memos/stats:
+    get:
+      summary: GetUserMemosStats gets stats of memos for a user.
+      operationId: MemoService_GetUserMemosStats
+      responses:
+        "200":
+          description: A successful response.
+          schema:
+            $ref: '#/definitions/v1GetUserMemosStatsResponse'
+        default:
+          description: An unexpected error response.
+          schema:
+            $ref: '#/definitions/googlerpcStatus'
+      parameters:
+        - name: name
+          description: |-
+            name is the name of the user to get stats for.
+            Format: users/{id}
+          in: query
+          required: false
+          type: string
+        - name: timezone
+          description: |-
+            timezone location
+            Format: uses tz identifier
+            https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+          in: query
+          required: false
+          type: string
+        - name: filter
+          description: Same as ListMemosRequest.filter
+          in: query
+          required: false
+          type: string
       tags:
         - MemoService
   /api/v1/memos:by-uid/{uid}:
@@ -903,13 +961,13 @@ paths:
         - MemoService
   /api/v1/{name_1}:
     get:
-      summary: GetUser gets a user by name.
-      operationId: UserService_GetUser
+      summary: GetIdentityProvider gets an identity provider.
+      operationId: IdentityProviderService_GetIdentityProvider
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1User'
+            $ref: '#/definitions/apiv1IdentityProvider'
         default:
           description: An unexpected error response.
           schema:
@@ -917,14 +975,14 @@ paths:
       parameters:
         - name: name_1
           description: |-
-            The name of the user.
-            Format: users/{id}
+            The name of the identityProvider to get.
+            Format: identityProviders/{id}
           in: path
           required: true
           type: string
-          pattern: users/[^/]+
+          pattern: identityProviders/[^/]+
       tags:
-        - UserService
+        - IdentityProviderService
     delete:
       summary: DeleteIdentityProvider deletes an identity provider.
       operationId: IdentityProviderService_DeleteIdentityProvider
@@ -951,13 +1009,13 @@ paths:
         - IdentityProviderService
   /api/v1/{name_2}:
     get:
-      summary: GetIdentityProvider gets an identity provider.
-      operationId: IdentityProviderService_GetIdentityProvider
+      summary: GetResource returns a resource by name.
+      operationId: ResourceService_GetResource
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/apiv1IdentityProvider'
+            $ref: '#/definitions/v1Resource'
         default:
           description: An unexpected error response.
           schema:
@@ -965,14 +1023,15 @@ paths:
       parameters:
         - name: name_2
           description: |-
-            The name of the identityProvider to get.
-            Format: identityProviders/{id}
+            The name of the resource.
+            Format: resources/{id}
+            id is the system generated unique identifier.
           in: path
           required: true
           type: string
-          pattern: identityProviders/[^/]+
+          pattern: resources/[^/]+
       tags:
-        - IdentityProviderService
+        - ResourceService
     delete:
       summary: DeleteInbox deletes an inbox.
       operationId: InboxService_DeleteInbox
@@ -999,13 +1058,13 @@ paths:
         - InboxService
   /api/v1/{name_3}:
     get:
-      summary: GetResource returns a resource by name.
-      operationId: ResourceService_GetResource
+      summary: GetMemo gets a memo.
+      operationId: MemoService_GetMemo
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1Resource'
+            $ref: '#/definitions/v1Memo'
         default:
           description: An unexpected error response.
           schema:
@@ -1013,15 +1072,14 @@ paths:
       parameters:
         - name: name_3
           description: |-
-            The name of the resource.
-            Format: resources/{id}
-            id is the system generated unique identifier.
+            The name of the memo.
+            Format: memos/{id}
           in: path
           required: true
           type: string
-          pattern: resources/[^/]+
+          pattern: memos/[^/]+
       tags:
-        - ResourceService
+        - MemoService
     delete:
       summary: DeleteResource deletes a resource by name.
       operationId: ResourceService_DeleteResource
@@ -1048,29 +1106,6 @@ paths:
       tags:
         - ResourceService
   /api/v1/{name_4}:
-    get:
-      summary: GetMemo gets a memo.
-      operationId: MemoService_GetMemo
-      responses:
-        "200":
-          description: A successful response.
-          schema:
-            $ref: '#/definitions/v1Memo'
-        default:
-          description: An unexpected error response.
-          schema:
-            $ref: '#/definitions/googlerpcStatus'
-      parameters:
-        - name: name_4
-          description: |-
-            The name of the memo.
-            Format: memos/{id}
-          in: path
-          required: true
-          type: string
-          pattern: memos/[^/]+
-      tags:
-        - MemoService
     delete:
       summary: DeleteMemo deletes a memo.
       operationId: MemoService_DeleteMemo
@@ -1097,13 +1132,13 @@ paths:
         - MemoService
   /api/v1/{name}:
     get:
-      summary: GetActivity returns the activity with the given id.
-      operationId: ActivityService_GetActivity
+      summary: GetUser gets a user by name.
+      operationId: UserService_GetUser
       responses:
         "200":
           description: A successful response.
           schema:
-            $ref: '#/definitions/v1Activity'
+            $ref: '#/definitions/v1User'
         default:
           description: An unexpected error response.
           schema:
@@ -1111,14 +1146,14 @@ paths:
       parameters:
         - name: name
           description: |-
-            The name of the activity.
-            Format: activities/{id}
+            The name of the user.
+            Format: users/{id}
           in: path
           required: true
           type: string
-          pattern: activities/[^/]+
+          pattern: users/[^/]+
       tags:
-        - ActivityService
+        - UserService
     delete:
       summary: DeleteUser deletes a user.
       operationId: UserService_DeleteUser
@@ -1890,6 +1925,8 @@ definitions:
         type: string
       bucket:
         type: string
+      customDomain:
+        type: string
     title: 'Reference: https://developers.cloudflare.com/r2/examples/aws/aws-sdk-go/'
   apiHttpBody:
     type: object
@@ -2278,15 +2315,14 @@ definitions:
   v1Activity:
     type: object
     properties:
-      name:
-        type: string
-        title: |-
-          The name of the activity.
-          Format: activities/{id}
+      id:
+        type: integer
+        format: int32
+        description: The system-generated unique identifier for the activity.
       creatorId:
         type: integer
         format: int32
-        description: The uid of the user who created the activity.
+        description: The system-generated unique identifier for the user who created the activity.
       type:
         type: string
         description: The type of the activity.
@@ -2383,6 +2419,17 @@ definitions:
       content:
         type: string
         format: byte
+  v1GetUserMemosStatsResponse:
+    type: object
+    properties:
+      stats:
+        type: object
+        additionalProperties:
+          type: integer
+          format: int32
+        description: |-
+          stats is the stats of memo creating/updating activities.
+          key is the year-month-day string. e.g. "2020-01-01".
   v1HTMLElementNode:
     type: object
     properties:
@@ -2510,11 +2557,11 @@ definitions:
   v1ListMemoPropertiesResponse:
     type: object
     properties:
-      entities:
+      properties:
         type: array
         items:
           type: object
-          $ref: '#/definitions/v1MemoPropertyEntity'
+          $ref: '#/definitions/v1MemoProperty'
   v1ListMemoReactionsResponse:
     type: object
     properties:
@@ -2699,21 +2746,6 @@ definitions:
         type: boolean
       hasIncompleteTasks:
         type: boolean
-  v1MemoPropertyEntity:
-    type: object
-    properties:
-      name:
-        type: string
-        title: |-
-          The name of the memo property.
-          Format: memos/{id}/properties/{property_id}
-      property:
-        $ref: '#/definitions/v1MemoProperty'
-        readOnly: true
-      displayTime:
-        type: string
-        format: date-time
-        readOnly: true
   v1MemoRelation:
     type: object
     properties:
@@ -3151,6 +3183,3 @@ definitions:
       public:
         type: boolean
         description: public is a flag that the instance is open for other users.
-      passwordAuth:
-        type: boolean
-        description: password_auth is a flag whether the instance allows password authentication.
